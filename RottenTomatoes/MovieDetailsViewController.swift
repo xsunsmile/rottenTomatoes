@@ -13,32 +13,55 @@ class MovieDetailsViewController: UIViewController, UIScrollViewDelegate {
     var movieDetail: NSDictionary = NSDictionary()
     @IBOutlet weak var backgroundImage: UIImageView!
     @IBOutlet weak var scrollDetail: UIScrollView!
-    @IBOutlet weak var movieTitleLabel: UILabel!
-    @IBOutlet weak var movieRatingLabel: UILabel!
     @IBOutlet weak var movieSynopsisTextView: UITextView!
+    @IBOutlet weak var navigationBar: UINavigationItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        backgroundImage.setImageWithURL(getMoviePosterURL("profile"))
+        var titleView = UILabel(frame: CGRectMake(0, 0, view.frame.size.width * 0.8, 100))
+        titleView.text = getMovieProperty("title") as NSString
+        titleView.textColor = UIColor.yellowColor()
+        titleView.textAlignment = .Center
+        navigationItem.titleView = titleView
         
-        var label = UILabel()
-//        label.backgroundColor = [UIColor clearColor];
-//        label.font = [UIFont boldSystemFontOfSize:20.0];
-//        label.shadowColor = [UIColor colorWithWhite:0.0 alpha:0.5];
-//        label.textAlignment = NSTextAlignmentCenter;
-        label.textColor = UIColor.yellowColor()
-        label.text = getMovieProperty("title")
-        navigationItem.titleView = label
+        backgroundImage.setImageWithURL(getMoviePosterURL("profile"), placeholderImage: UIImage(named: "flixster"))
+       
+        let title = getMovieProperty("title") as NSString
+        let year = getMovieProperty("year") as NSInteger
+        let uiTitle = NSString(string: "\(title) (\(year))")
         
+        let critics_score = getMovieScore("critics_score")
+        let audience_score = getMovieScore("audience_score")
+        let uiScores = NSString(string: "Critics score: \(critics_score) Audience score: \(audience_score)")
+        
+        let mpaa_rating = getMovieProperty("mpaa_rating") as NSString
+        let synopsisText = getMovieProperty("synopsis") as NSString
+        
+        let synopsisBody = NSString(string: uiTitle
+            .stringByAppendingString("\n")
+            .stringByAppendingString(uiScores)
+            .stringByAppendingString("\n")
+            .stringByAppendingString(mpaa_rating)
+            .stringByAppendingString("\n")
+            .stringByAppendingString("\n")
+            .stringByAppendingString(synopsisText))
+        var synopsisAttrText = NSMutableAttributedString(string: synopsisBody)
+        synopsisAttrText.addAttribute(NSFontAttributeName, value: UIFont.boldSystemFontOfSize(16), range: NSRange(location: 0,length: uiTitle.length))
+        synopsisAttrText.addAttribute(NSFontAttributeName, value: UIFont.boldSystemFontOfSize(12), range: NSRange(location: uiTitle.length + 1,length: uiScores.length))
+        synopsisAttrText.addAttribute(NSFontAttributeName, value: UIFont.systemFontOfSize(10), range: NSRange(location: uiTitle.length + uiScores.length + 2,length: mpaa_rating.length))
+        synopsisAttrText.addAttribute(NSFontAttributeName, value: UIFont.systemFontOfSize(12), range: NSRange(location: uiTitle.length + uiScores.length + mpaa_rating.length + 4,length: synopsisText.length))
+        synopsisAttrText.addAttribute(NSForegroundColorAttributeName, value: UIColor.whiteColor(), range: NSRange(location: 0,length: synopsisBody.length))
+ 
         movieSynopsisTextView.frame.size.width = view.frame.size.width
-        movieSynopsisTextView.layoutMargins = UIEdgeInsetsMake(20.0, 5.0, 10.0, 5.0)
-        movieSynopsisTextView.text = getMovieProperty("synopsis")
+        movieSynopsisTextView.textContainerInset = UIEdgeInsetsMake(10.0, 15.0, 10.0, 15.0)
+        movieSynopsisTextView.attributedText = synopsisAttrText
+        
+        let minimumHeight = view.frame.size.height - movieSynopsisTextView.frame.origin.y
         movieSynopsisTextView.sizeToFit()
+        movieSynopsisTextView.frame.size.height = max(movieSynopsisTextView.frame.size.height, minimumHeight)
+        movieSynopsisTextView.frame.size.width = max(movieSynopsisTextView.frame.size.width, view.frame.size.width)
         movieSynopsisTextView.layoutIfNeeded()
-        
-        movieTitleLabel.text = getMovieProperty("title")
-//        movieRatingLabel.text = getMovieProperty("ratings.critics_rating")
-        
+       
         scrollDetail.delegate = self
         scrollDetail.contentSize = CGSizeMake(
             view.frame.size.width,
@@ -56,19 +79,12 @@ class MovieDetailsViewController: UIViewController, UIScrollViewDelegate {
         return NSURL(string: movieUrl)!
     }
     
-    func getMovieProperty(key: NSString) -> NSString {
-        return movieDetail[key] as NSString
+    func getMovieProperty(key: NSString) -> AnyObject {
+        return movieDetail[key]!
     }
     
-    @IBAction func toggle(sender: AnyObject) {
-        navigationController?.setNavigationBarHidden(navigationController?.navigationBarHidden == false, animated: true)
-    }
-    
-    override func prefersStatusBarHidden() -> Bool {
-        return navigationController?.navigationBarHidden == true
-    }
-    
-    override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
-        return UIStatusBarAnimation.Fade
+    func getMovieScore(key: NSString) -> NSInteger {
+        let ratings = movieDetail["ratings"] as NSDictionary
+        return ratings[key] as NSInteger
     }
 }

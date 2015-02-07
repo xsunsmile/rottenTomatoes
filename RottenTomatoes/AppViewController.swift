@@ -20,9 +20,14 @@ class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataS
 
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.separatorStyle = UITableViewCellSeparatorStyle.SingleLineEtched
+        tableView.separatorColor = UIColor.grayColor()
         
-        navigationController!.navigationBar.barTintColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.75)
+        navigationController!.navigationBar.barStyle = UIBarStyle.Black
+        navigationController!.navigationBar.tintColor = UIColor.yellowColor()
+        navigationController!.navigationBar.titleTextAttributes = NSDictionary(objectsAndKeys:
+            UIColor.yellowColor(), NSForegroundColorAttributeName)
+        
+        SVProgressHUD.show()
         getPopularRentalMovies()
     }
 
@@ -31,20 +36,23 @@ class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataS
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCellWithIdentifier("MovieCellView") as MovieCellView
-        cell.accessoryType = UITableViewCellAccessoryType.None
-        cell.posterImageView.setImageWithURL(getMoviePosterURL(indexPath, type: "profile"))
-        return cell
+        var cell = tableView.dequeueReusableCellWithIdentifier("MovieCellView") as? MovieCellView
+        cell!.movie = getMovieDetails(indexPath)
+        return cell!
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return movies.count;
+        return movies.count
     }
-
+    
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
-
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 114.0
+    }
+    
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         var vc = segue.destinationViewController as MovieDetailsViewController
         var indexPath = tableView.indexPathForCell(sender as UITableViewCell)!
@@ -55,36 +63,31 @@ class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataS
         let RottenTomatoesURLString = "http://api.rottentomatoes.com/api/public/v1.0/lists/dvds/top_rentals.json?apikey=" + api_key
         let request = NSMutableURLRequest(URL: NSURL(string: RottenTomatoesURLString)!)
         NSURLConnection.sendAsynchronousRequest(request, queue: NSOperationQueue.mainQueue(), completionHandler:{ (response, data, error) in
-            var errorValue: NSError? = nil
-            var responseDict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &errorValue) as NSDictionary
-            self.movies = responseDict["movies"] as NSArray
-            self.tableView.reloadData()
+            var actualError: NSError? = error
+            
+            if let error = actualError {
+                NSLog("%@", "network error happend")
+                var networkErrorView = UIBorderedLabel(frame: CGRectMake(0, 10, self.view.frame.size.width, 100))
+                networkErrorView.topInset = 10
+                networkErrorView.bottomInset = 10
+                networkErrorView.text = "Network Error"
+                networkErrorView.textColor = UIColor.whiteColor()
+                networkErrorView.backgroundColor = UIColor.blackColor()
+                networkErrorView.textAlignment = .Center
+                networkErrorView.sizeToFit()
+                networkErrorView.frame.size.width = self.view.frame.size.width
+                self.view.addSubview(networkErrorView)
+//                self.tableView.hidden = true
+            } else {
+                var responseDict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &actualError) as NSDictionary
+                self.movies = responseDict["movies"] as NSArray
+                self.tableView.reloadData()               
+            }
+            SVProgressHUD.dismiss()
         })
     }
     
     func getMovieDetails(indexPath: NSIndexPath) -> NSDictionary {
         return movies[indexPath.row] as NSDictionary
-    }
- 
-  
-    func getMoviePosterURL(indexPath: NSIndexPath, type: NSString) -> NSURL! {
-        let movieDetails = getMovieDetails(indexPath)
-        let posters = movieDetails["posters"] as NSDictionary
-        let movieUrl = (posters[type] as String).stringByReplacingOccurrencesOfString("tmb", withString: "ori")
-        
-        println("movieUrl now: \(movieUrl)")
-        return NSURL(string: movieUrl)!
-    }
-    
-    override func prefersStatusBarHidden() -> Bool {
-        return navigationController?.navigationBarHidden == true
-    }
-    
-    override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation {
-        return UIStatusBarAnimation.Fade
-    }
-    
-    @IBAction func toggle(sender: AnyObject) {
-        navigationController?.setNavigationBarHidden(navigationController?.navigationBarHidden == false, animated: true)
     }
 }
