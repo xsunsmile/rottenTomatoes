@@ -52,19 +52,19 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="ODO-8O-hGD">
-                                                    <rect key="frame" x="0.0" y="0.0" width="74" height="570"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="74" height="669"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES"/>
                                                     <rect key="contentStretch" x="0.0" y="0.0" width="0.10000000000000001" height="0.10000000000000001"/>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="IhK-1E-Z8E">
-                                                    <rect key="frame" x="82" y="8" width="550" height="21"/>
+                                                    <rect key="frame" x="82" y="8" width="870" height="21"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
                                                     <color key="textColor" red="0.98287563131313127" green="0.98287563131313127" blue="0.98287563131313127" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="VYL-Rh-AoE">
-                                                    <rect key="frame" x="82" y="37" width="550" height="59"/>
+                                                    <rect key="frame" x="82" y="37" width="870" height="59"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                                     <attributedString key="attributedText">
                                                         <fragment content="Test xxx">
