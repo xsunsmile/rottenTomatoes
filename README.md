@@ -13,4 +13,4 @@ Rotten Tomatoes assignment from CodePath
 - [x] Add a search bar
 
 # Walkthrough
-[](https://raw.githubusercontent.com/xsunsmile/rottenTomatoes/master/rottenTomatoes.gif)
+![walkthrough](https://raw.githubusercontent.com/xsunsmile/rottenTomatoes/master/rottenTomatoes.gif)
