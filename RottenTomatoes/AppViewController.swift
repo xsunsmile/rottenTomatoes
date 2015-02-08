@@ -14,13 +14,13 @@ class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataS
     var movies: NSArray = NSArray()
     
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var networkErrorView: UIView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        edgesForExtendedLayout = UIRectEdge.None
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.separatorColor = UIColor.grayColor()
         
         navigationController!.navigationBar.barStyle = UIBarStyle.Black
         navigationController!.navigationBar.tintColor = UIColor.yellowColor()
@@ -66,22 +66,12 @@ class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataS
             var actualError: NSError? = error
             
             if let error = actualError {
-                NSLog("%@", "network error happend")
-                var networkErrorView = UIBorderedLabel(frame: CGRectMake(0, 10, self.view.frame.size.width, 100))
-                networkErrorView.topInset = 10
-                networkErrorView.bottomInset = 10
-                networkErrorView.text = "Network Error"
-                networkErrorView.textColor = UIColor.whiteColor()
-                networkErrorView.backgroundColor = UIColor.blackColor()
-                networkErrorView.textAlignment = .Center
-                networkErrorView.sizeToFit()
-                networkErrorView.frame.size.width = self.view.frame.size.width
-                self.view.addSubview(networkErrorView)
-//                self.tableView.hidden = true
+                self.networkErrorView.hidden = false
+                self.tableView.hidden = true
             } else {
                 var responseDict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &actualError) as NSDictionary
                 self.movies = responseDict["movies"] as NSArray
-                self.tableView.reloadData()               
+                self.tableView.reloadData()
             }
             SVProgressHUD.dismiss()
         })
