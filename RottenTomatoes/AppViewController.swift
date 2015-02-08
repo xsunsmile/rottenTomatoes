@@ -11,7 +11,10 @@ import UIKit
 class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     let api_key = "hkn96husrzd5gp824dkcteqc"
+    var current_page = 1
+    var numResults = 0
     var movies: NSArray = NSArray()
+    var refreshControl: UIRefreshControl! = UIRefreshControl()
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var networkErrorView: UIView!
@@ -27,8 +30,13 @@ class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataS
         navigationController!.navigationBar.titleTextAttributes = NSDictionary(objectsAndKeys:
             UIColor.yellowColor(), NSForegroundColorAttributeName)
         
+        self.refreshControl.attributedTitle = NSAttributedString(string: "Pull to refersh")
+        self.refreshControl.addTarget(self, action: Selector("refresh"), forControlEvents: UIControlEvents.ValueChanged)
+        self.tableView.addSubview(refreshControl)
+
         SVProgressHUD.show()
         getPopularRentalMovies()
+        SVProgressHUD.dismiss()
     }
 
     override func didReceiveMemoryWarning() {
@@ -60,7 +68,7 @@ class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataS
     }
     
     func getPopularRentalMovies() {
-        let RottenTomatoesURLString = "http://api.rottentomatoes.com/api/public/v1.0/lists/dvds/top_rentals.json?apikey=" + api_key
+        let RottenTomatoesURLString = "http://api.rottentomatoes.com/api/public/v1.0/lists/movies/in_theaters.json?page_limit=16&page=\(current_page)&apikey=\(api_key)"
         let request = NSMutableURLRequest(URL: NSURL(string: RottenTomatoesURLString)!)
         NSURLConnection.sendAsynchronousRequest(request, queue: NSOperationQueue.mainQueue(), completionHandler:{ (response, data, error) in
             var actualError: NSError? = error
@@ -70,14 +78,22 @@ class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataS
                 self.tableView.hidden = true
             } else {
                 var responseDict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &actualError) as NSDictionary
+
                 self.movies = responseDict["movies"] as NSArray
+                self.numResults = responseDict["total"] as NSInteger
+
+                self.refreshControl.endRefreshing()
                 self.tableView.reloadData()
             }
-            SVProgressHUD.dismiss()
         })
     }
     
     func getMovieDetails(indexPath: NSIndexPath) -> NSDictionary {
         return movies[indexPath.row] as NSDictionary
+    }
+
+    func refresh() {
+        current_page += 1
+        getPopularRentalMovies()
     }
 }
