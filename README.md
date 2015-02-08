@@ -14,3 +14,4 @@ Rotten Tomatoes assignment from CodePath
 
 # Walkthrough
 ![walkthrough](https://raw.githubusercontent.com/xsunsmile/rottenTomatoes/master/rottenTomatoes.gif)
+![networkError](https://raw.githubusercontent.com/xsunsmile/rottenTomatoes/master/networkError.gif)
