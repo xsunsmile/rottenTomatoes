@@ -13,5 +13,8 @@ Rotten Tomatoes assignment from CodePath
 - [x] Add a search bar
 
 # Walkthrough
-![walkthrough](https://raw.githubusercontent.com/xsunsmile/rottenTomatoes/master/rottenTomatoes.gif)
-![networkError](https://raw.githubusercontent.com/xsunsmile/rottenTomatoes/master/networkError.gif)
+| Movies        | Error           | Search  |
+|:-------------:|:-------------:|:-----:|
+| ![walkthrough](https://raw.githubusercontent.com/xsunsmile/rottenTomatoes/master/rottenTomatoes.gif)      | ![networkError](https://raw.githubusercontent.com/xsunsmile/rottenTomatoes/master/networkError.gif) | ![search](https://raw.githubusercontent.com/xsunsmile/rottenTomatoes/master/searchBar.gif) |
+
+
