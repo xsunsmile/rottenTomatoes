@@ -8,22 +8,31 @@
 
 import UIKit
 
-class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class AppViewController: UIViewController,
+                         UITableViewDelegate,
+                         UITableViewDataSource,
+                         UISearchBarDelegate
+{
     
     let api_key = "hkn96husrzd5gp824dkcteqc"
     var current_page = 1
     var numResults = 0
-    var movies: NSArray = NSArray()
+    var isFiltered = false
+    var shouldBeginEditing = true
+    var movies: [NSDictionary]! = []
+    var filteredMovies = NSMutableArray()
     var refreshControl: UIRefreshControl! = UIRefreshControl()
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var networkErrorView: UIView!
+    @IBOutlet weak var searchBar: UISearchBar!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         edgesForExtendedLayout = UIRectEdge.None
         tableView.dataSource = self
         tableView.delegate = self
+        searchBar.delegate = self
         
         navigationController!.navigationBar.barStyle = UIBarStyle.Black
         navigationController!.navigationBar.tintColor = UIColor.yellowColor()
@@ -50,6 +59,10 @@ class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataS
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if(isFiltered) {
+           return filteredMovies.count
+        }
+        
         return movies.count
     }
     
@@ -79,7 +92,7 @@ class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataS
             } else {
                 var responseDict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &actualError) as NSDictionary
 
-                self.movies = responseDict["movies"] as NSArray
+                self.movies = responseDict["movies"] as [NSDictionary]
                 self.numResults = responseDict["total"] as NSInteger
 
                 self.refreshControl.endRefreshing()
@@ -89,11 +102,69 @@ class AppViewController: UIViewController, UITableViewDelegate, UITableViewDataS
     }
     
     func getMovieDetails(indexPath: NSIndexPath) -> NSDictionary {
+        if isFiltered {
+            return filteredMovies[indexPath.row] as NSDictionary
+        }
+        
         return movies[indexPath.row] as NSDictionary
     }
 
     func refresh() {
         current_page += 1
         getPopularRentalMovies()
+    }
+    
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        filteredMovies.removeAllObjects()
+        
+        if !searchBar.isFirstResponder() {
+            shouldBeginEditing = false
+            isFiltered = false
+            view.endEditing(true)
+            return
+        }
+        
+        if(searchText.isEmpty) {
+            NSLog("%@", "searching nothing")
+            isFiltered = false
+            let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(1 * Double(NSEC_PER_SEC)))
+            dispatch_after(delayTime, dispatch_get_main_queue()) {
+                self.searchBar.resignFirstResponder()
+                return
+            }
+            return
+        } else {
+            NSLog("%@", "searching \(searchText)")
+            isFiltered = true
+            for movie in movies {
+                let movieTitle = movie["title"] as NSString
+                let movieSynopsis = movie["synopsis"] as NSString
+                
+                var nameRange: NSRange = movieTitle.rangeOfString(searchText, options: .CaseInsensitiveSearch)
+                var synopsisRange: NSRange = movieSynopsis.rangeOfString(searchText, options: .CaseInsensitiveSearch)
+                
+                NSLog("%@", "matching \(movieTitle) to \(searchText) :: \(nameRange.location)")
+                
+                if(nameRange.location != NSNotFound || synopsisRange.location != NSNotFound) {
+                    NSLog("%@", "adding \(movieTitle)")
+                    filteredMovies.addObject(movie)
+                }
+            }
+        }
+        
+        if filteredMovies.count > 0 {
+            NSLog("%@", "reload table")
+            tableView.reloadData()
+        }
+    }
+
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        view.endEditing(true)
+    }
+    
+    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
+        let returnValue = shouldBeginEditing
+        shouldBeginEditing = true
+        return returnValue
     }
 }

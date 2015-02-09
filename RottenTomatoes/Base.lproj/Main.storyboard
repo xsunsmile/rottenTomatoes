@@ -98,6 +98,7 @@
                     <navigationItem key="navigationItem" title="Movies" id="mXv-D1-A6u"/>
                     <connections>
                         <outlet property="networkErrorView" destination="Yad-lz-fdl" id="vgC-Ho-0jh"/>
+                        <outlet property="searchBar" destination="xI1-dJ-GDi" id="gHg-m3-FPm"/>
                         <outlet property="searchDisplayController" destination="7VI-nO-XDp" id="0K7-BQ-Fbd"/>
                         <outlet property="tableView" destination="uQI-h8-2PR" id="byg-xp-FQD"/>
                     </connections>
